@@ -74,39 +74,6 @@ sudo /usr/local/bin/scanspool service restart
 
 The TUI header shows its version. If the running receiver reports a different version, the TUI shows it on a separate line. Use `/usr/local/bin/scanspool --version` to check the installed executable from the shell.
 
-<details>
-<summary>Switch from ScanSnap2FTP to ScanSpool</summary>
-
-ScanSpool uses the same data files. Reuse the original data directory to keep the scanner registration, scan profile, output settings and queued PDFs.
-
-1. Run `/usr/local/bin/scansnap2ftp service status` and note the **User**, **Data directory** and **Autostart** values. Download the new executable before stopping the old receiver.
-2. Wait for the current scan to finish. Stop the old receiver and disable its autostart. Keep its files in place until you have tested ScanSpool. Back up the original data directory privately after stopping the service.
-
-```sh
-sudo /usr/local/bin/scansnap2ftp service stop
-sudo systemctl disable scansnap2ftp.service
-```
-
-3. Install ScanSpool with the user and exact absolute data path you noted above. Replace the example values before running the commands.
-
-```sh
-chmod +x ~/scanspool-linux-amd64
-sudo ~/scanspool-linux-amd64 service install \
-  --user 'YOUR_RECEIVER_USER' \
-  --data-dir '/absolute/path/to/original/data'
-sudo /usr/local/bin/scanspool service start
-/usr/local/bin/scanspool status
-/usr/local/bin/scanspool setup
-```
-
-4. Check the scan profile and output folder in setup, then make a test scan. Once the PDF arrives, remove the old service with `sudo /usr/local/bin/scansnap2ftp service uninstall`. The shared data directory is retained.
-
-If the switch fails before removing the old service, remove the new one with `sudo /usr/local/bin/scanspool service uninstall` when installed. Then start the old service with `sudo /usr/local/bin/scansnap2ftp service start`. If the old service had autostart enabled, restore it with `sudo systemctl enable scansnap2ftp.service`. Use one receiver at a time.
-
-For a foreground installation, stop the old receiver and run ScanSpool with `--data-dir /absolute/path/to/original/data`. Use that same path for setup and the other commands, or set `SCANSPOOL_DATA_DIR`.
-
-</details>
-
 ## Change scan settings
 
 In the TUI, open **Scan profile**. Use ↑/↓ to move and ←/→ to change a choice. Ctrl+U clears a number field so you can type a new value. **Enter** saves, **Esc** discards, and **Ctrl+R** loads defaults into the draft. The default is color, 300 dpi, duplex and automatic paper size. Changes apply to the next scan, including scans started at the scanner.
@@ -202,7 +169,9 @@ make cross-build
 python3 tools/test_terminal.py ./bin/scanspool
 ```
 
-`make build` writes `bin/scanspool`. `make cross-build` writes the six executables listed above. Builds use `CGO_ENABLED=0`. For a GitHub release, attach those files alongside [LICENSE](LICENSE) and [NOTICE](NOTICE). Override the Makefile version with `make build VERSION=0.2.0-test`. A direct `go build` reports `dev` unless the version is supplied.
+`make build` writes `bin/scanspool`. `make cross-build` writes the six executables listed above. Builds use `CGO_ENABLED=0`. Override the Makefile version with `make build VERSION=0.2.0-test`. A direct `go build` reports `dev` unless the version is supplied.
+
+Pushing a stable version tag such as `v0.2.0` runs the tests and publishes a GitHub release with all six executables, [LICENSE](LICENSE), [NOTICE](NOTICE), and `SHA256SUMS`.
 
 `tools/test_systemd.py` provides a disposable Linux container check with a simulated service manager. Use the target machine to verify real boot and restart behavior.
 
