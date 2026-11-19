@@ -1,0 +1,12 @@
+.DS_Store
+__pycache__/
+.local/
+/data/
+/bin/
+/dist/
+.env
+*.pcap
+*.pcapng
+*reserve-template*.bin
+/task_plan.md
+/notes.md
