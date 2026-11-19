@@ -7,7 +7,7 @@ require (
 	codeberg.org/go-pdf/fpdf v0.11.1
 	github.com/charmbracelet/x/ansi v0.11.6
 	github.com/jlaffaye/ftp v0.2.0
-	golang.org/x/image v0.36.0
+	golang.org/x/image v0.41.0
 	golang.org/x/sys v0.40.0
 	golang.org/x/term v0.29.0
 )
