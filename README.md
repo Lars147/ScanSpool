@@ -6,29 +6,21 @@ ScanSpool is an independent tool compatible with the **ScanSnap iX1300**. It rec
 
 ## 1. Download
 
-Open [GitHub Releases][releases], select the latest release and expand **Assets**. Download the executable for the machine that will receive scans. The **Source code** archives are for developers.
+Run the command for your receiver to download the latest executable into the current directory. On Linux, Synology, or macOS, use your home directory to follow the setup examples below.
 
-| Receiver | x86-64 (Intel or AMD) | ARM64 |
-| --- | --- | --- |
-| Linux or Synology | `scanspool-linux-amd64` | `scanspool-linux-arm64` |
-| macOS | `scanspool-darwin-amd64` | `scanspool-darwin-arm64` (Apple silicon) |
-| Windows | `scanspool-windows-amd64.exe` | `scanspool-windows-arm64.exe` |
-
-On Linux or Synology, `uname -m` reports `x86_64` or `aarch64` for the two architectures above.
-
-<details>
-<summary>Copy the download to a Synology</summary>
-
-Enable SSH on the NAS. On the computer where you downloaded the file, open a terminal in the download folder. Replace `synology` with your SSH alias or `user@nas-address`. Use the filename that matches the NAS.
+**Linux, Synology, and macOS**
 
 ```sh
-scp scanspool-linux-amd64 synology:scanspool-linux-amd64
-ssh synology
+curl -fLO "https://github.com/Lars147/ScanSpool/releases/latest/download/scanspool-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | sed 's/^x86_64$/amd64/; s/^aarch64$/arm64/')"
 ```
 
-If the copy says `subsystem request failed`, retry with `scp -O scanspool-linux-amd64 synology:scanspool-linux-amd64`.
+**Windows PowerShell**
 
-</details>
+```powershell
+$arch = switch ((Get-CimInstance Win32_Processor | Select-Object -First 1).Architecture) { 9 { 'amd64' } 12 { 'arm64' } default { throw 'Unsupported CPU architecture' } }; $asset = "scanspool-windows-$arch.exe"; Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/Lars147/ScanSpool/releases/latest/download/$asset" -OutFile $asset
+```
+
+For a manual download, open [GitHub Releases][releases] and expand **Assets**.
 
 ## 2. Make your first scan
 
@@ -169,7 +161,7 @@ make cross-build
 python3 tools/test_terminal.py ./bin/scanspool
 ```
 
-`make build` writes `bin/scanspool`. `make cross-build` writes the six executables listed above. Builds use `CGO_ENABLED=0`. Override the Makefile version with `make build VERSION=0.2.0-test`. A direct `go build` reports `dev` unless the version is supplied.
+`make build` writes `bin/scanspool`. `make cross-build` writes x86-64 and ARM64 executables for Linux, macOS, and Windows. Builds use `CGO_ENABLED=0`. Override the Makefile version with `make build VERSION=0.2.0-test`. A direct `go build` reports `dev` unless the version is supplied.
 
 Pushing a stable version tag such as `v0.2.0` runs the tests and publishes a GitHub release with all six executables, [LICENSE](LICENSE), [NOTICE](NOTICE), and `SHA256SUMS`.
 
